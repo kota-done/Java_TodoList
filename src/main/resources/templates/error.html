@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Error page</title>
+<link th:href="@{css/style.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<h1 th:text="#{Something.Wrong1}"></h1>
+	<h2 th:text="#{Something.Wrong2}"></h2>
+	
+	<a href="/login" th:text="#{Something.Wrong3}"></a>
+	
+	<!-- エラー情報 -->
+	<div th:unless="${error}=='None'">
+		<hr style="margin-top:2em; margin-bottom:1em;">
+		<span>🔲Error information</span>
+		<table>
+			<tr>
+				<th>timestamp</th>
+				<td th:text="${timestamp}"></td>
+			</tr>
+			<tr>
+				<th>path</th>
+				<td th:text="${path}"></td>
+			</tr>
+			<tr>
+				<th>status</th>
+				<td th:text="${status}"></td>
+			</tr>
+			<tr>
+				<th>error</th>
+				<td th:text="${error}"></td>
+			</tr>
+			<tr>
+				<th>message</th>
+				<td th:text="${message}"></td>
+			</tr>
+			<tr>
+				<th>exception</th>
+				<td th:text="${exception}"></td>
+			</tr>
+			<tr>
+				<th>errors</th>
+				<td th:text="${errors}"></td>
+			</tr>
+			<tr>
+				<th>trace</th>
+				<td th:text="${trace}"></td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

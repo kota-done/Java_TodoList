@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Set user</title>
+<link th:href="@{/css/style.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<div th:replace="fragments::msg_area"></div>
+	<form th:action="@{/regist/do}" method="post" th:object="${registData}">
+		<h3 th:text="#{text.register}"></h3>
+		
+		<table>
+			<!--ユーザーID -->
+			<tr>
+				<th th:text="#{label.loginId}"></th>
+				<td>
+					<input type="text" name="loginId" th:value="*{loginId}">
+					<div th:if="${#fields.hasErrors('loginId')}" th:errors="*{loginId}" th:errorclass="red"></div>
+				</td>
+			</tr>
+			<!--氏名-->
+			<tr>
+				<th th:text="#{label.name}"></th>
+				<td>
+					<input type="text" name="name" th:value="*{name}">
+					<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" th:errorclass="red"></div>
+				</td>
+			</tr>
+			<!--パスワード-->
+			<tr>
+				<th th:text="#{label.password}"></th>
+				<td>
+					<input type="text" name="password1">
+					<div th:if="${#fields.hasErrors('password1')}" th:errors="*{password1}" th:errorclass="red"></div>
+				</td>
+			</tr>
+			<!--パスワード（確認用） -->
+			<tr>
+				<th th:text="#{label.password}"></th>
+				<td>
+					<input type="text" name="password2">
+					<div th:if="${#fields.hasErrors('password2')}" th:errors="*{password2}" th:errorclass="red"></div>
+				</td>
+			</tr>
+		</table>
+		
+		<!-- 登録ボタン-->
+		<button type="submit" th:text="#{button.register}"></button>
+		<!-- 戻るボタン-->
+		<a th:href="@{/regist/cancel}" th:text="#{button.cancel}"></a>
+	
+	</form>
+</body>
+</html>
