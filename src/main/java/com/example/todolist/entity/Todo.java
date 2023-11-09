@@ -10,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
@@ -55,6 +57,11 @@ public class Todo {
 	//cascadeは登録、削除、更新といった処理を両方ともに適用させる
 	@OrderBy("id asc") //テーブル更新時に自動で並び順が変更されるため、idで昇順になるように設定。
 	private List<Task> taskList = new ArrayList<>();
+	
+	//11/6追加　カテゴリー
+	@ManyToOne
+	@JoinColumn(name = "category_id")
+	private Category category;
 
 	//Todoへの参照設定
 	public void addTask(Task task) {

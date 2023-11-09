@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.example.todolist.common.Utils;
 import com.example.todolist.entity.AttachedFile;
+import com.example.todolist.entity.Category;
 import com.example.todolist.entity.Task;
 import com.example.todolist.entity.Todo;
 
@@ -34,6 +35,9 @@ public class TodoData {
 	private Integer urgency;
 	private String deadline;
 	private String done;
+	
+	@Min(value = 1) //カテゴリで追加
+	private Integer categoryId;
 
 	@Valid
 	private List<TaskData> taskList; //タスク一覧のプロパティを追加
@@ -53,6 +57,7 @@ public class TodoData {
 		todo.setImportance(importance);
 		todo.setUrgency(urgency);
 		todo.setDone(done);
+		todo.setCategory(new Category(categoryId)); //選択したカテゴリ　11/8
 
 		//Task部分 バインドされたtaskListからTaskオブジェクトを生成してセットする。
 		Date date;
@@ -77,7 +82,7 @@ public class TodoData {
 		return todo;
 	}
 
-	//Todoの内容から入力画面へ渡すTdoDataを生成する＋添付ファイルAttachedFileも渡す（9/19)+アカウントID追加（9/27）
+	//Todoの内容から入力画面へ渡すTdoDataを生成する＋添付ファイルAttachedFileも渡す（9/19)+アカウントID追加（9/27）＋カテゴリ追加（11/8）
 	public TodoData(Todo todo, List<AttachedFile> attachedFiles) {
 		//Todo部分
 		this.id = todo.getId();
@@ -87,6 +92,7 @@ public class TodoData {
 		this.urgency = todo.getUrgency();
 		this.deadline = Utils.date2str(todo.getDeadline());
 		this.done = todo.getDone();
+		this.categoryId= todo.getCategory().getId(); //カテゴリで追加11/8
 
 		//登録済みTask
 		this.taskList = new ArrayList<>();

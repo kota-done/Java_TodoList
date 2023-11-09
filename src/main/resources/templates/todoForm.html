@@ -28,6 +28,17 @@
 							type="hidden" th:field="*{id}"> <input type="hidden"
 							th:field="*{ownerId}"></td>
 					</tr>
+					<!--カテゴリ追加（11/8） -->
+					<tr>
+						<th th:text="#{label.category}"></th>
+						<td>
+							<select name="categoryId">
+								<option th:each="c:${application.categoryList}" th:value="${c.id}" th:text="${c.name}" th:selected="${c.id} ==*{categoryId}"></option>
+							<!--コントローラーから渡すcategoryIdと一致するものを選択した状態にする。 -->
+							</select>
+							<div th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" th:errorclass="red"></div>
+						</td>
+					</tr>
 					<tr>
 						<!-- 項目毎にエラーがあれば表示するように残す-->
 
@@ -48,9 +59,9 @@
 					<tr>
 						<th>緊急度</th>
 						<td><select name="urgency">
-								<option value="-1" th:field="*{urgency}">選択してください</option>
-								<option value="1" th:field="*{urgency}">高</option>
-								<option value="0" th:field="*{urgency}">低</option>
+								<option value="-1" th:field="*{urgency}" th:text="#{option.none}">選択してください</option>
+								<option value="1" th:field="*{urgency}" th:text="#{option.high}">高</option>
+								<option value="0" th:field="*{urgency}" th:text="#{option.low}">低</option>
 						</select>
 							<div th:if="${#fields.hasErrors('urgency')}"
 								th:errors="*{urgency}" th:errorclass="red"></div></td>

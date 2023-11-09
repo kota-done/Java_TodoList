@@ -24,11 +24,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.todolist.common.OpMsg;
 import com.example.todolist.dao.TodoDaoImpl;
 import com.example.todolist.entity.AttachedFile;
+import com.example.todolist.entity.Category;
 import com.example.todolist.entity.Task;
 import com.example.todolist.entity.Todo;
 import com.example.todolist.form.TodoData;
 import com.example.todolist.form.TodoQuery;
 import com.example.todolist.repository.AttachedFileRepository;
+import com.example.todolist.repository.CategoryRepository;
 import com.example.todolist.repository.TaskRepository;
 import com.example.todolist.repository.TodoRepository;
 import com.example.todolist.service.TodoService;
@@ -37,6 +39,7 @@ import com.example.todolist.view.TodoPdf;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -50,6 +53,8 @@ public class TodoListController {
 	private final MessageSource messageSource;
 	private final TaskRepository taskRepository; //タスク処理用
 	private final AttachedFileRepository attachedFileRepository; //ファイル登録用
+	private final CategoryRepository categoryRepository; //Todoのカテゴリー追加用
+	private final ServletContext application; //
 
 	@PersistenceContext //EnitytyManagerのインスタンスを取得するアノテーション　@Autowiredとは作成するタイミングが異なるため記述必要
 	private EntityManager entityManager;
@@ -84,12 +89,37 @@ public class TodoListController {
 		mv.setViewName("todoList");
 		//アカウント毎へのテーブル連携9/27
 		Integer accountId = (Integer) session.getAttribute("accountId");
-		Integer test = accountId.intValue();
+
 		Page<Todo> todoPage = todoDaoImpl.findByCriteria(todoQuery, accountId, prevPageable); //アカウントIDを引数にして取得するTodoを限定
 		mv.addObject("todoQuery", todoQuery); //検索条件
 		mv.addObject("todoPage", todoPage); //page情報
 		mv.addObject("todoList", todoPage.getContent()); //検索結果
 
+		//カテゴリーのため追加　11/8
+		List<Category> _categoryList = categoryRepository.findAllByOrderById();
+		List<Todo> todoList;
+		List<Task> taskList;
+		for (Category category : _categoryList) {
+			System.out.println(category);
+
+			todoList = category.getTodoList();
+			for (Todo todo : todoList) {
+				System.out.println("\t" + todo);
+
+				taskList = todo.getTaskList();
+				for (Task task : taskList) {
+					System.out.println("\t\t" + task);
+				}
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<Category> categoryList= (List<Category>) application.getAttribute("categoryList");
+		if(categoryList==null) { //アプリ立ち上げ後、最初にログインした時に、アプリケーションスコープを登録し、その後のユーザーはスコープからTodo一覧を参照できる。
+			categoryList= categoryRepository.findAll();
+			categoryList.add(0,new Category(0,"----"));
+			application.setAttribute("categoryList", categoryList);
+		}
 		//		//追加機能：登録・更新・削除後もページングや検索情報を保持して表示のため、todoQueryを最初に宣言して内容を追加するように記述。
 		//		Page<Todo> todoPage = todoRepository.findAll(pageable); //ページネーションの結果をわたす
 		//		mv.addObject("todoList", todoPage.getContent()); //Pageオブジェクトのページ情報に加えて、次に表示するページ単位のデータをコンテンツとして持っている。
@@ -171,9 +201,9 @@ public class TodoListController {
 		if (!result.hasErrors() && isValid) {
 			Todo todo = todoData.toEntity();
 			//セッション情報のaccountIdと、エンティティのowner_idを連携させる。
-			todo.setOwnerId((Integer)session.getAttribute("accountId"));
+			todo.setOwnerId((Integer) session.getAttribute("accountId"));
 			//saveAndFlushのメソッド処理で「カラム毎の内容をデータベースに登録」までをスプリングで実行してくれる。レポジトリクラスで実装しているから可能。
-			todo=todoRepository.saveAndFlush(todo);
+			todo = todoRepository.saveAndFlush(todo);
 			String msg = messageSource.getMessage("msg.i.todo_created", null, locale);
 			//９/11 リダイレクトの場合、Model経由はデータ保持のスコープ外。redirectAttributeを使用する
 			redirectAttributes.addFlashAttribute("msg", new OpMsg("I", msg));
