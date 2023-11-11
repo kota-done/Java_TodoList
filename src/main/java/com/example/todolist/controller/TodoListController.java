@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -39,7 +40,6 @@ import com.example.todolist.view.TodoPdf;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -54,7 +54,7 @@ public class TodoListController {
 	private final TaskRepository taskRepository; //タスク処理用
 	private final AttachedFileRepository attachedFileRepository; //ファイル登録用
 	private final CategoryRepository categoryRepository; //Todoのカテゴリー追加用
-	private final ServletContext application; //
+	
 
 	@PersistenceContext //EnitytyManagerのインスタンスを取得するアノテーション　@Autowiredとは作成するタイミングが異なるため記述必要
 	private EntityManager entityManager;
@@ -95,30 +95,14 @@ public class TodoListController {
 		mv.addObject("todoPage", todoPage); //page情報
 		mv.addObject("todoList", todoPage.getContent()); //検索結果
 
-		//カテゴリーのため追加　11/8
-		List<Category> _categoryList = categoryRepository.findAllByOrderById();
-		List<Todo> todoList;
-		List<Task> taskList;
-		for (Category category : _categoryList) {
-			System.out.println(category);
-
-			todoList = category.getTodoList();
-			for (Todo todo : todoList) {
-				System.out.println("\t" + todo);
-
-				taskList = todo.getTaskList();
-				for (Task task : taskList) {
-					System.out.println("\t\t" + task);
-				}
-			}
-		}
-		
+		//カテゴリ取得
 		@SuppressWarnings("unchecked")
-		List<Category> categoryList= (List<Category>) application.getAttribute("categoryList");
-		if(categoryList==null) { //アプリ立ち上げ後、最初にログインした時に、アプリケーションスコープを登録し、その後のユーザーはスコープからTodo一覧を参照できる。
-			categoryList= categoryRepository.findAll();
-			categoryList.add(0,new Category(0,"----"));
-			application.setAttribute("categoryList", categoryList);
+		List<Category> categoryList=(List<Category>)session.getAttribute("categoryList");
+		if(categoryList==null) {
+			String locale= LocaleContextHolder.getLocale().toString(); //ハンドラーメソッドにlocaleを経由しなくてもロケールを使用できるように。
+			categoryList= categoryRepository.findByPkey_localeOrderByPkey_code(locale);
+			categoryList.add(0,new Category("",locale,"-----"));
+			session.setAttribute("categoryList",categoryList); //ロケール毎にセッションをを登録することで、他国の人にカテゴリー表示を避ける。
 		}
 		//		//追加機能：登録・更新・削除後もページングや検索情報を保持して表示のため、todoQueryを最初に宣言して内容を追加するように記述。
 		//		Page<Todo> todoPage = todoRepository.findAll(pageable); //ページネーションの結果をわたす

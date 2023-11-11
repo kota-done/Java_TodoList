@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
@@ -58,9 +59,11 @@ public class Todo {
 	@OrderBy("id asc") //テーブル更新時に自動で並び順が変更されるため、idで昇順になるように設定。
 	private List<Task> taskList = new ArrayList<>();
 	
-	//11/6追加　カテゴリー
 	@ManyToOne
-	@JoinColumn(name = "category_id")
+	@JoinColumns({ //複合カラムの結合項目が複数ある場合に使用。referencedColumnName 　nameのい結合先列（category側）
+		@JoinColumn(name = "category_code",referencedColumnName = "code"),
+		@JoinColumn(name = "category_locale",referencedColumnName = "locale"),
+	})
 	private Category category;
 
 	//Todoへの参照設定

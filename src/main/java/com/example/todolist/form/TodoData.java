@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.i18n.LocaleContextHolder;
+
 import com.example.todolist.common.Utils;
 import com.example.todolist.entity.AttachedFile;
 import com.example.todolist.entity.Category;
@@ -37,7 +39,7 @@ public class TodoData {
 	private String done;
 	
 	@Min(value = 1) //カテゴリで追加
-	private Integer categoryId;
+	private String categoryCode;
 
 	@Valid
 	private List<TaskData> taskList; //タスク一覧のプロパティを追加
@@ -57,7 +59,8 @@ public class TodoData {
 		todo.setImportance(importance);
 		todo.setUrgency(urgency);
 		todo.setDone(done);
-		todo.setCategory(new Category(categoryId)); //選択したカテゴリ　11/8
+		String locale = LocaleContextHolder.getLocale().toString();
+		todo.setCategory(new Category(categoryCode,locale)); //選択されたカテゴリ
 
 		//Task部分 バインドされたtaskListからTaskオブジェクトを生成してセットする。
 		Date date;
@@ -92,7 +95,7 @@ public class TodoData {
 		this.urgency = todo.getUrgency();
 		this.deadline = Utils.date2str(todo.getDeadline());
 		this.done = todo.getDone();
-		this.categoryId= todo.getCategory().getId(); //カテゴリで追加11/8
+		this.categoryCode= todo.getCategory().getPkey().getCode(); //カテゴリで追加11/8
 
 		//登録済みTask
 		this.taskList = new ArrayList<>();
